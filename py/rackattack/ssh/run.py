@@ -1,6 +1,6 @@
 import socket
 import logging
-
+import subprocess
 
 class Run:
     def __init__(self, sshClient):
@@ -43,13 +43,11 @@ class Run:
             stderr.close()
             self._logger.debug("Bash script output:\n\n%(output)s\n", dict(output=output))
             if status != 0:
-                e = Exception("Failed running '%s', status '%s', output was:\n%s" % (
-                    bashScript, status, output))
-                e.output = output
+                e = subprocess.CalledProcessError(status, bashScript, output)
                 raise e
-            return output
         finally:
             chan.close()
+        return output
 
     def backgroundScript(self, bashScript):
         command = "\n".join([
