@@ -50,5 +50,5 @@ class TunnelLocalForwardingServer:
             return
         tunnelConnection = tunnelconnection.TunnelConnection(socket=connection, channel=channel)
         self._addConnectionCallback(tunnelConnection)
-        self._logger.info("Successfully connected %(localEndpoint)s to %(remoteEndpoint)s", dict(
+        self._logger.debug("Successfully connected %(localEndpoint)s to %(remoteEndpoint)s", dict(
             localEndpoint=peer, remoteEndpoint=self._remoteEndpoint))
