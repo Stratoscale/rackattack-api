@@ -45,3 +45,11 @@ class Node(api.Node):
 
     def networkInfo(self):
         return self._info
+
+    def disablePXE(self):
+        return self._ipcClient.call(
+            'disablepxe', mac=self.primaryMACAddress())
+
+    def enablePXE(self):
+        return self._ipcClient.call(
+            'enablepxe', mac=self.primaryMACAddress())
