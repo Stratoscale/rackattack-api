@@ -82,6 +82,13 @@ class Connection:
         raise Exception("SSH TCP Server '%(hostname)s:%(port)s' did not respond within timeout" % dict(
             hostname=self._hostname, port=self._port))
 
+    def __enter__(self):
+        self.connect()
+        return self
+
+    def __exit__(self, type, value, traceback):
+        self.close()
+
     def _rawTCPConnect(self, tcpEndpoint):
         s = socket.socket()
         try:
