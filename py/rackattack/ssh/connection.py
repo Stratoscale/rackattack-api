@@ -50,8 +50,9 @@ class Connection:
         if self._tunnel is not None:
             self._tunnel.close()
             self._tunnel = None
-        self._sshClient.close()
-        self._sshClient = None
+        if self._sshClient is not None:
+            self._sshClient.close()
+            self._sshClient = None
 
     def connect(self):
         if self._password:
