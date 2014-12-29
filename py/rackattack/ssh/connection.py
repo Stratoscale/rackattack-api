@@ -70,7 +70,7 @@ class Connection:
             hostname=self._hostname, port=self._port,
             username=self._username,
             look_for_keys=False, allow_agent=False,
-            timeout=10,
+            timeout=10, banner_timeout=60,
             ** password)
         self._sshClient.get_transport().set_keepalive(15)
 
@@ -82,13 +82,6 @@ class Connection:
             time.sleep(interval)
         raise Exception("SSH TCP Server '%(hostname)s:%(port)s' did not respond within timeout" % dict(
             hostname=self._hostname, port=self._port))
-
-    def __enter__(self):
-        self.connect()
-        return self
-
-    def __exit__(self, type, value, traceback):
-        self.close()
 
     def _rawTCPConnect(self, tcpEndpoint):
         s = socket.socket()
