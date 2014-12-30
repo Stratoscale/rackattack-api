@@ -70,7 +70,7 @@ class Connection:
             hostname=self._hostname, port=self._port,
             username=self._username,
             look_for_keys=False, allow_agent=False,
-            timeout=10, banner_timeout=60,
+            timeout=10,
             ** password)
         self._sshClient.get_transport().set_keepalive(15)
 
