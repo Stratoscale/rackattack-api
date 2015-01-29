@@ -180,3 +180,15 @@ class Node:
         includes netmask, osmosisServerIP, inauguratorServerIP, and so forth
         """
         assert False, "Deriving class must implement"
+
+    def disablePXE(self):
+        """
+        disables PXE boot for the current host.
+        """
+        assert False, "Deriving class must implement"
+
+    def enablePXE(self):
+        """
+        enables PXE boot for the current host.
+        """
+        assert False, "Deriving class must implement"
