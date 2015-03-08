@@ -7,12 +7,21 @@ class Run:
         self._sshClient = sshClient
         self._logger = logging.getLogger('ssh')
 
+    def winScript(self, winScript, outputTimeout=20 * 60):
+        self._logger.debug("Running win script:\n\n%(winScript)s\n", dict(winScript=winScript))
+        winCommand = " && ".join(winScript.strip().split("\n"))
+        winCommand = "( " + winCommand + " ) 2>&1"
+        return self._script(winCommand, winScript, outputTimeout=outputTimeout)
+
     def script(self, bashScript, outputTimeout=20 * 60):
         self._logger.debug("Running bash script:\n\n%(bashScript)s\n", dict(bashScript=bashScript))
         command = "\n".join([
             "sh 2>&1 << 'RACKATTACK_SSH_RUN_SCRIPT_EOF'",
             bashScript,
             "RACKATTACK_SSH_RUN_SCRIPT_EOF\n"])
+        return self._script(command, bashScript, outputTimeout=outputTimeout)
+
+    def _script(self, command, script, outputTimeout=20 * 60):
         transport = self._sshClient.get_transport()
         chan = transport.open_session()
         try:
@@ -33,7 +42,7 @@ class Run:
                 output = "".join(outputArray)
                 e = socket.timeout(
                     "Timeout running '%s', no input for timeout of '%s'. Partial output was\n:%s" % (
-                        bashScript, outputTimeout, output))
+                        script, outputTimeout, output))
                 e.output = output
                 raise e
             output = "".join(outputArray)
@@ -41,10 +50,10 @@ class Run:
             stderr.read()
             stdout.close()
             stderr.close()
-            self._logger.debug("Bash script output:\n\n%(output)s\n", dict(output=output))
+            self._logger.debug("Script output:\n\n%(output)s\n", dict(output=output))
             if status != 0:
                 e = Exception("Failed running '%s', status '%s', output was:\n%s" % (
-                    bashScript, status, output))
+                    script, status, output))
                 e.output = output
                 raise e
             return output
