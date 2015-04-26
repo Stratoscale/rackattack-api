@@ -5,10 +5,34 @@ import simplejson
 
 
 class Publish:
+    ALL_HOSTS_ALLOCATIONS_EXCHANGE_NAME = 'allHostsAllocations'
+
     def __init__(self, amqpURL):
         self._declaredExchanges = set()
         self._amqpURL = amqpURL
         self._connect()
+
+    def _filterKeys(self, obj, *keys):
+        return dict((key, val) for (key, val) in obj.iteritems() if key in keys)
+
+    def allocationRequested(self, requirements, allocationInfo):
+        allocationInfo = self._filterKeys(allocationInfo, 'user', 'purpose', 'nice')
+        requirementsToReport = ('imageLabel', 'imageHint')
+        requirements = dict((name, self._filterKeys(requirement, *requirementsToReport)) for name, requirement in
+                            requirements.iteritems())
+        message = dict(event='requested',
+                       requirements=requirements,
+                       **allocationInfo)
+        self._publish(self.ALL_HOSTS_ALLOCATIONS_EXCHANGE_NAME, message)
+
+    def allocationCreated(self, allocationInfo, requirements, allocated, index):
+        allocationInfo = self._filterKeys(allocationInfo, 'user', 'purpose', 'nice', 'comment')
+        hosts = dict((name, dict(hostID=stateMachine.hostImplementation().id(),
+                                 imageLabel=requirements[name]['imageLabel'],
+                                 imageHint=requirements[name]['imageHint']))
+                     for name, stateMachine in allocated.iteritems())
+        self._publish(self.ALL_HOSTS_ALLOCATIONS_EXCHANGE_NAME, dict(event='created', hosts=hosts,
+                                                                     index=index, **allocationInfo))
 
     def allocationChangedState(self, allocationID):
         self._publish(self.allocationExchange(allocationID), dict(
