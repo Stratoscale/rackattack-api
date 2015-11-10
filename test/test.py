@@ -73,6 +73,34 @@ class Test(unittest.TestCase):
             time.sleep(3)
             print "Done Sleeping for few seconds"
 
+    def _flood_server(self, port, message):
+        s = socket.socket()
+        try:
+            s.connect(("localhost", port))
+            while True:
+                s.sendall(message)
+                time.sleep(0.1)
+        except:
+            pass
+        finally:
+            s.close()
+
+    def test_LocalForwardingTunnelBrutalClose(self):
+        with self._allocateOne() as (node, ssh, allocation):
+            # Test close server brutally
+            ssh.ftp.putFile("/tmp/server.py", TCPSERVER_READEVERYTHING)
+            ssh.run.backgroundScript("python /tmp/server.py 8888 > /tmp/output.test")
+            port3 = ssh.tunnel.localForward(8888)
+            thread.start_new_thread(self._flood_server, (port3, "testtest"))
+            time.sleep(5)
+            ssh.run.execute("ps -ef | grep -i [p]ython | grep -i server | awk '{print $2}' | xargs kill -9 || true")
+            time.sleep(5)
+            ssh.ftp.putFile("/tmp/server.py", TCPSERVER_READEVERYTHING)
+            ssh.run.backgroundScript("python /tmp/server.py 7789 > /tmp/output")
+            port2 = ssh.tunnel.localForward(7789)
+            self._send(port2, "wassup")
+            self.assertIn('wassup', ssh.ftp.getContents("/tmp/output"))
+
     @contextlib.contextmanager
     def _allocateOne(self):
         client = clientfactory.factory()
