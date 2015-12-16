@@ -6,9 +6,12 @@ from rackattack.tcp import subscribe
 from rackattack.tcp import suicide
 from rackattack.tcp import transport
 import urllib2
+import os
+import logging
 
 
 class Client(api.Client):
+
     def __init__(self,
                  providerRequestLocation,
                  providerSubscribeLocation,
@@ -31,6 +34,12 @@ class Client(api.Client):
             cmd='allocate',
             requirements=jsonableRequirements,
             allocationInfo=allocationInfo.__dict__)
+        return self.getAllocationInstance(requirements, allocationID)
+
+    def allocateExisting(self, requirements, allocationID):
+        return self.getAllocationInstance(requirements, allocationID)
+
+    def getAllocationInstance(self, requirements, allocationID):
         allocationInstance = allocation.Allocation(
             id=allocationID, requirements=requirements, ipcClient=self,
             subscribe=self._subscribe, heartbeat=self._heartbeat)
