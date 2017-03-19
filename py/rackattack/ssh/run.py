@@ -7,23 +7,21 @@ class Run:
         self._sshClient = sshClient
         self._logger = logging.getLogger('ssh')
 
-    def script(self, bashScript, outputTimeout=20 * 60):
-        self._logger.debug("Running bash script:\n\n%(bashScript)s\n", dict(bashScript=bashScript))
-        command = "\n".join([
-            "sh 2>&1 << 'RACKATTACK_SSH_RUN_SCRIPT_EOF'",
-            bashScript,
-            "RACKATTACK_SSH_RUN_SCRIPT_EOF\n"])
+    def script(self, bashScript, verbose=True, outputTimeout=20 * 60):
         try:
-            return self.execute(command, outputTimeout)
+            return self.execute(bashScript, outputTimeout, wrapCmd=True, verbose=verbose)
         except Exception as e:
             e.args += ('When running bash script "%s"' % bashScript),
             raise
 
-    def execute(self, command, outputTimeout=20 * 60):
+    def execute(self, command, outputTimeout=20 * 60, wrapCmd=True, verbose=True):
         transport = self._sshClient.get_transport()
         chan = transport.open_session()
+        commandToExecute = self._wrapCommand(command) if wrapCmd else command
         try:
-            chan.exec_command(command)
+            if verbose:
+                self._logger.debug("Running bash script: %(cmd)s" % dict(cmd=command.strip()))
+            chan.exec_command(commandToExecute)
             chan.settimeout(outputTimeout)
             stdin = chan.makefile('wb', -1)
             stdout = chan.makefile('rb', -1)
@@ -34,7 +32,9 @@ class Run:
             stderr.read()
             stdout.close()
             stderr.close()
-            self._logger.debug("SSH Execution output:\n\n%(output)s\n", dict(output=output))
+            if verbose:
+                self._logger.debug("SSH Execution output: %(output)s" %
+                                   dict(output="\n" + output if output else "NO OUTPUT "))
             if status != 0:
                 e = Exception("Failed executing, status '%s', output was:\n%s" % (status, output))
                 e.output = output
@@ -42,6 +42,11 @@ class Run:
             return output
         finally:
             chan.close()
+
+    def _wrapCommand(self, command):
+        return "\n".join(["sh 2>&1 << 'RACKATTACK_SSH_RUN_SCRIPT_EOF'",
+                          command,
+                          "RACKATTACK_SSH_RUN_SCRIPT_EOF\n"])
 
     def _readOutput(self, stdout, outputTimeout):
         outputArray = []

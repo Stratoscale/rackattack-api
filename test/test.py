@@ -99,7 +99,7 @@ class Test(unittest.TestCase):
             thread.start_new_thread(self._flood_server, (port3, "testtest"))
             time.sleep(5)
             ssh.run.execute("ps -ef | grep -i [p]ython | grep -i server | awk '{print $2}' "
-                            "| xargs kill -9 || true")
+                            "| xargs kill -9 || true", wrapCmd=False)
             time.sleep(5)
             ssh.ftp.putFile("/tmp/server.py", TCPSERVER_READEVERYTHING)
             ssh.run.backgroundScript("python /tmp/server.py 7789 > /tmp/output")
