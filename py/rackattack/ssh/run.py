@@ -14,9 +14,9 @@ class Run:
             e.args += ('When running bash script "%s"' % bashScript),
             raise
 
-    def execute(self, command, outputTimeout=20 * 60, wrapCmd=True, verbose=True):
+    def execute(self, command, outputTimeout=20 * 60, wrapCmd=True, verbose=True, connectionTimeout=60):
         transport = self._sshClient.get_transport()
-        chan = transport.open_session()
+        chan = transport.open_session(timeout=connectionTimeout)
         commandToExecute = self._wrapCommand(command) if wrapCmd else command
         try:
             if verbose:
