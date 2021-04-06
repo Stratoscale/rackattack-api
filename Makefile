@@ -5,7 +5,7 @@ unittest:
 	python -m coverage report --show-missing --include=py/*.py --omit=py/rackattack/tests/*.py,*/__init__.py
 
 check_convention:
-	pep8 py test* --max-line-length=109
+	python -m pep8 py test* --max-line-length=109
 
 #this can not run in dirbalak clean build, as solvent can not yet be run at this point (still running in 
 #rootfs-build-nostrato, this project is a dependency of rootfs-buid). This is why this is actually being

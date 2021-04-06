@@ -1,18 +1,18 @@
-import logging
-import unittest
-import subprocess
-import os
-import test
-import time
-import contextlib
-import socket
-import threading
-import thread
-from rackattack import clientfactory
 from rackattack.ssh import connection
-from rackattack import api
+from rackattack import clientfactory
 from rackattack.tcp import transport
 from rackattack.tcp import subscribe
+from rackattack import api
+import contextlib
+import subprocess
+import threading
+import unittest
+import logging
+import thread
+import socket
+import time
+import test
+import os
 
 
 SIMPLE_USE_CASE = os.path.join(os.path.dirname(test.__file__), "simpleusecase.py")
@@ -39,9 +39,9 @@ class Test(unittest.TestCase):
 
     def test_singleNodeAllocation_PDBDoesNotCauseAllocationToDie(self):
         popen = subprocess.Popen(["python", SIMPLE_USE_CASE], stdin=subprocess.PIPE)
-        print "Sleeping for 180 seconds, to make sure heartbeat timeout occours, if pdb stops"
+        print("Sleeping for 180 seconds, to make sure heartbeat timeout occours, if pdb stops")
         time.sleep(180)
-        print "Done Sleeping for 180 seconds, resuming PDB"
+        print("Done Sleeping for 180 seconds, resuming PDB")
         popen.stdin.write("c\n")
         popen.stdin.close()
         result = popen.wait()
@@ -65,18 +65,18 @@ class Test(unittest.TestCase):
             ssh.run.backgroundScript("python /tmp/server.py 7789 > /tmp/output")
             self._send(port2, "wassup")
             self.assertIn('wassup', ssh.ftp.getContents("/tmp/output"))
-            print "Closing just one tunnel server"
+            print("Closing just one tunnel server")
             ssh.tunnel.stopLocalForward(7787)
             time.sleep(1)
-            print "Stopping all tunnels"
+            print("Stopping all tunnels")
             ssh.tunnel.stopAll()
             with self.assertRaises(Exception):
                 self._receiveAll(port)
-            print "Closing tunnel"
+            print("Closing tunnel")
             ssh.tunnel.close()
-            print "Sleeping for few seconds, watch for exceptions from other threads"
+            print("Sleeping for few seconds, watch for exceptions from other threads")
             time.sleep(3)
-            print "Done Sleeping for few seconds"
+            print("Done Sleeping for few seconds")
 
     def _flood_server(self, port, message):
         s = socket.socket()
@@ -114,20 +114,20 @@ class Test(unittest.TestCase):
             requirement = api.Requirement(imageLabel=LABEL, imageHint=HINT)
             info = api.AllocationInfo(user='rackattack-api test', purpose='integration test')
             allocation = client.allocate(dict(it=requirement), info)
-            print "Created allocation, waiting for node inauguration"
+            print("Created allocation, waiting for node inauguration")
             try:
                 allocation.wait(timeout=7 * 60)
-                print "Allocation successfull, waiting for ssh"
+                print("Allocation successfull, waiting for ssh")
                 nodes = allocation.nodes()
                 assert len(nodes) == 1, nodes
                 it = nodes['it']
                 it.fetchSerialLog()
                 allocation.fetchPostMortemPack()
-                print "SSH credentials:", it.rootSSHCredentials()
+                print("SSH credentials:", it.rootSSHCredentials())
                 ssh = connection.Connection(**it.rootSSHCredentials())
                 ssh.waitForTCPServer()
                 ssh.connect()
-                print "SSH connected"
+                print("SSH connected")
                 yield it, ssh, allocation
             finally:
                 allocation.free()
