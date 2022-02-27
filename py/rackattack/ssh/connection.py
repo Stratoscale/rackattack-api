@@ -7,6 +7,7 @@ from rackattack.ssh import ftp
 from rackattack.ssh import run
 from rackattack.ssh import dirftp
 from rackattack.ssh import tunnel
+from strato.common.log.progress_bar import progressbar_context
 
 
 def discardParamikoLogs():
@@ -75,10 +76,12 @@ class Connection:
 
     def waitForTCPServer(self, timeout=60, interval=0.1):
         before = time.time()
-        while time.time() - before < timeout:
-            if self._rawTCPConnect((self._hostname, self._port)):
-                return
-            time.sleep(interval)
+        with progressbar_context("waiting for connection to {}:{}".format(self._hostname, self._port), maxval=timeout, leave=True) as pbar:
+            while time.time() - before < timeout:
+                if self._rawTCPConnect((self._hostname, self._port)):
+                    return
+                time.sleep(interval)
+                pbar.update(int(time.time() - before))
         raise Exception("SSH TCP Server '%(hostname)s:%(port)s' did not respond within timeout" % dict(
             hostname=self._hostname, port=self._port))
 

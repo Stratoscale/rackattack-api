@@ -136,7 +136,7 @@ class Allocation(api.Allocation):
         if eventType == "changedState":
             self._waitEvent.set()
         elif eventType == "providerMessage":
-            logging.info("Rackattack provider says: %(message)s", dict(message=event['message']))
+            logging.debug("Rackattack provider says: %(message)s", dict(message=event['message']))
         elif eventType == "withdrawn":
             self._handleWithdrawl(event["message"])
 
@@ -148,12 +148,12 @@ class Allocation(api.Allocation):
             msg = "Inaugurator '%(id)s' %(state)s percent: %(percent)s" % dict(
                 id=event['id'], percent=percent, state=state)
             if state == 'fetching':
-                logging.info(msg)
+                logging.debug(msg)
                 self._progressPercent[event['id']] = percent
             elif state == 'digesting':
                 logging.debug(msg)
         else:
-            logging.info("Inaugurator '%(id)s' status %(status)s", event)
+            logging.debug("Inaugurator '%(id)s' status %(status)s", event)
         if self._progressCallback is not None:
             self._progressCallback(overallPercent=self._overallPercent(), event=event)
 
