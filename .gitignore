@@ -7,3 +7,4 @@ images.fortests
 .coverage
 attic
 .idea/
+.vscode/
