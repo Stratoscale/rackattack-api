@@ -21,7 +21,8 @@ class Run:
         try:
             if verbose:
                 name = getattr(self._sshClient, 'name', '')
-                self._logger.debug("Running bash script: %(cmd)s %(name)s" % dict(cmd=command.strip(), name='on ' + name if name else name))
+                message = "Running bash script: %s %s" % (command.strip(), "on " + name if name else "")
+                self._logger.debug(message)
             chan.exec_command(commandToExecute)
             chan.settimeout(outputTimeout)
             stdin = chan.makefile('wb', -1)

@@ -2,7 +2,7 @@ import os
 import mock
 import json
 import pika
-import Queue
+from queue import Queue
 import logging
 import greenlet
 import unittest
