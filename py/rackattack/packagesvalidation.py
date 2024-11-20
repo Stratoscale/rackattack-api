@@ -18,7 +18,7 @@ def _validateMinimumVersion(packageName, minVersion):
     package = __import__(packageName)
     actualVersion = package.__version__
     actualVersion = _normalizedVersionNumber(actualVersion)
-    for componentNr in xrange(len(minVersion)):
+    for componentNr in range(len(minVersion)):
         minimumComponent = minVersion[componentNr]
         actualComponent = actualVersion[componentNr]
         if actualComponent < minimumComponent:
@@ -32,5 +32,5 @@ def _validateMinimumVersion(packageName, minVersion):
 
 
 def validateMinimumVersions(**packagesVersions):
-    for packageName, minVersion in packagesVersions.iteritems():
+    for packageName, minVersion in packagesVersions.items():
         _validateMinimumVersion(packageName, minVersion)

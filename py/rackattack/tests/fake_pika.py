@@ -1,5 +1,5 @@
 import pika
-import Queue
+from queue import Queue
 
 
 _rabbitMQBrokers = dict()

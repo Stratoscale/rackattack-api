@@ -1,0 +1,5 @@
+registry: rackattack-nas.dc1:5000
+build-container-image: rackattack-api-build
+
+make:
+  makefile: Makefile

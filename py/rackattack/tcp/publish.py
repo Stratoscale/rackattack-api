@@ -4,7 +4,7 @@ import logging
 import pika
 import simplejson
 import threading
-import Queue
+from queue import Queue
 
 
 class PublishSpooler(threading.Thread):

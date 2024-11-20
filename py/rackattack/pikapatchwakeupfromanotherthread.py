@@ -1,5 +1,5 @@
 import os
-import Queue
+from queue import Queue
 import select
 import logging
 import signal
